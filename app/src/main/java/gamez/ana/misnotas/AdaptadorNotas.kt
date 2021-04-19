@@ -5,8 +5,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.TextView
+import android.widget.*
+import java.io.File
+import java.lang.Exception
 
 class AdaptadorNotas: BaseAdapter {
 
@@ -25,9 +26,16 @@ class AdaptadorNotas: BaseAdapter {
 
         var tv_titulo_det: TextView = vista.findViewById(R.id.tv_titulo_det)
         var tv_contenido_det: TextView = vista.findViewById(R.id.tv_contenido_det)
+        var btn_borrar: ImageView = vista.findViewById(R.id.btn_borrar)
 
         tv_titulo_det.text = nota.titulo
         tv_contenido_det.text = nota.contenido
+
+        btn_borrar.setOnClickListener {
+            eliminar(nota.titulo)
+            notas.remove(nota)
+            this.notifyDataSetChanged()
+        }
 
         return vista
     }
@@ -42,5 +50,30 @@ class AdaptadorNotas: BaseAdapter {
 
     override fun getCount(): Int {
         return notas.size
+    }
+
+
+    private fun eliminar(titulo: String){
+        if (titulo == ""){
+            Toast.makeText(context, "Error: título vacío", Toast.LENGTH_SHORT).show()
+        }else{
+            try{
+
+                val archivo = File(ubicacion(), titulo+".txt")
+                archivo.delete()
+                Toast.makeText(context, "Se eliminó el archivo", Toast.LENGTH_SHORT).show()
+            }catch (e: Exception){
+                Toast.makeText(context, "Error al eliminar el archivo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun ubicacion(): String{
+        val album = File(context?.getExternalFilesDir(null), "notas")
+        if(!album.exists()){
+            album.mkdir()
+        }
+
+        return album.absolutePath
     }
 }
